@@ -1,31 +1,27 @@
 package juego;
-
-
 import java.awt.Color;
-
+import java.awt.Image;
 import entorno.Entorno;
+import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego
 {
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
-	
+	private Image fondo;
 	// Variables y métodos propios de cada grupo
 	// ...
-	
 	Juego()
 	{
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
-		
+		this.entorno = new Entorno(this, "TP_GRUPO_13", 800, 600);
+		this.fondo = Herramientas.cargarImagen("imagenes/fondo.png");
 		// Inicializar lo que haga falta para el juego
 		// ...
-
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
-
 	/**
 	 * Durante el juego, el método tick() será ejecutado en cada instante y 
 	 * por lo tanto es el método más importante de esta clase. Aquí se debe 
@@ -34,9 +30,11 @@ public class Juego extends InterfaceJuego
 	 */
 	public void tick()
 	{
-		// Procesamiento de un instante de tiempo
-		// ...
-		
+	    // Dibujar imagen de fondo
+	    entorno.dibujarImagen(fondo, 400, 300, 0);
+
+	    
+	   // Aca va el resto del procesamiento del juego (mago, enemigos, etc.)
 	}
 	
 
