@@ -1,5 +1,5 @@
 package juego;
-
+ 	
 import java.awt.Image;
 import entorno.Entorno;
 import entorno.Herramientas;
@@ -9,12 +9,14 @@ public class Gondolf {
     private double y;
     private double velocidad;
     private Image imagen;
+    private Image imagen2;
 
     public Gondolf(double x, double y) {
         this.x = x;
         this.y = y;
         this.velocidad = 3;
-        this.imagen = Herramientas.cargarImagen("imagenes/mago_reducido.png");
+        this.imagen = Herramientas.cargarImagen("imagenes/magochico.png");
+        this.imagen2 = Herramientas.cargarImagen("imagenes/magochico2.png");
     }
 
     public void mover(Entorno entorno) {
