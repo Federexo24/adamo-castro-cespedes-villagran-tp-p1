@@ -51,6 +51,12 @@ public class Juego extends InterfaceJuego
 	private Murcielagos batman;
 	private int golpesRecibidos = 0;
 	private boolean juegoPausado = false;
+	private int energia = 100; // Maná inicial
+	private boolean ataqueNormalActivo  = false;
+	private boolean superAtaqueActivo = false;
+	private int magiaSeleccionada = 1; // 1 = ataque normal, 2 = súper ataque
+
+
 	
 	 // FUNCION DE COLISION
 	private boolean colision(double x1, double y1, double x2, double y2, double rango) {
@@ -121,9 +127,29 @@ public class Juego extends InterfaceJuego
 	    entorno.dibujarRectangulo(700, 123, 200, 30, 0, Color.DARK_GRAY);
 	    entorno.dibujarRectangulo(700, 223, 200, 30, 0, Color.DARK_GRAY);
 	    entorno.dibujarRectangulo(700, 423, 200, 30, 0, Color.DARK_GRAY);
+	    
+	    //magia
+	    entorno.cambiarFont("Arial", 20, Color.CYAN);
+	    entorno.escribirTexto("Energía: " + energia, 640, 330);
+	    
+	    Color colorEscudo = (magiaSeleccionada == 1) ? Color.GREEN : Color.BLUE;
+	    Color colorExplosión = (magiaSeleccionada == 2) ? Color.YELLOW : Color.RED;
 
+
+	 // Dibujar botón para ataque normal
+	    entorno.dibujarRectangulo(650, 500, 80, 40, 0, colorEscudo);
+	    entorno.cambiarFont("Arial", 16, Color.WHITE);
+	    entorno.escribirTexto("Ataque", 620, 505);
+
+	    // Dibujar botón para súper ataque
+	    entorno.dibujarRectangulo(750, 500, 80, 40, 0, colorExplosión);
+	    entorno.cambiarFont("Arial", 16, Color.WHITE);
+	    entorno.escribirTexto("Explosión", 720, 505);
+
+
+	    
 	    // Texto de stats
-	    entorno.cambiarFont("Serif", 20, Color.WHITE);
+	    entorno.cambiarFont("Serif", 20, Color.WHITE); 
 	    entorno.escribirTexto("El camino de Gondolf", 610, 30);
 	    entorno.cambiarFont("Arial", 20, Color.RED);
 	    entorno.escribirTexto("Vida", 640, 130);
@@ -158,7 +184,68 @@ public class Juego extends InterfaceJuego
 	    if ((entorno.estaPresionada('d') || entorno.estaPresionada(entorno.TECLA_DERECHA)) && !bloqueaDerecha) {
 	        gondolf.moverDerecha();
 	    }
+	 // Ataque normal (clic izquierdo)
+	    if (entorno.sePresionoBoton(1)) { 
+	        double mouseX = entorno.mouseX();
+	        double mouseY = entorno.mouseY();
+
+	        if (mouseX >= 610 && mouseX <= 690 && mouseY >= 480 && mouseY <= 520) {
+	            magiaSeleccionada = 1;
+	        }
+	        if (mouseX >= 710 && mouseX <= 790 && mouseY >= 480 && mouseY <= 520) {
+	            magiaSeleccionada = 2;
+	        }
+	    }
+	    
+	    if (entorno.sePresionoBoton(3)) { // Clic derecho
+	        double mouseX = entorno.mouseX();
+	        double mouseY = entorno.mouseY();
+
+	        if (magiaSeleccionada == 1) {
+	            ataqueNormalActivo = true;
+	            System.out.println("¡Ataque normal activado!");
+	        } else if (magiaSeleccionada == 2 && energia >= 20) {
+	            superAtaqueActivo = true;
+	            energia -= 20;
+	            System.out.println("¡Súper ataque activado!");
+	        }
+	    }
+	    
+	    if (energia <= 0) {
+	        juegoPausado = true;
+	        System.out.println("¡Gondolf se quedó sin energía! El juego se ha pausado.");
+	    }
+
+
+	    
+
+
+
 	    gondolf.dibujar(entorno);
+	    
+	    if (ataqueNormalActivo) {
+	        for (int i = 0; i < murcielagos.size(); i++) {
+	            Murcielagos m = murcielagos.get(i);
+	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 100)) {
+	                murcielagos.remove(i);
+	                System.out.println("Murciélago eliminado con ataque normal");
+	                break; // solo uno
+	            }
+	        }
+	        ataqueNormalActivo = false; // reset
+	    }
+
+	    // SUPER ATAQUE - elimina varios en área
+	    if (superAtaqueActivo) {
+	        for (int i = murcielagos.size() - 1; i >= 0; i--) {
+	            Murcielagos m = murcielagos.get(i);
+	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 150)) {
+	                murcielagos.remove(i);
+	                System.out.println("Murciélago eliminado por explosión");
+	            }
+	        }
+	        superAtaqueActivo = false; // reset
+	    }
 	    
 	    //ROCAS 
 	    for (Roca r : rocas) {
@@ -192,6 +279,7 @@ public class Juego extends InterfaceJuego
 	        }
 	    }
 
+
 	   
 
 	    batman.dibujar(entorno);
@@ -199,6 +287,8 @@ public class Juego extends InterfaceJuego
 	}
 
 	@SuppressWarnings("unused")
+	
+	
 	public static void main(String[] args)
 	{
 		Juego juego = new Juego();
