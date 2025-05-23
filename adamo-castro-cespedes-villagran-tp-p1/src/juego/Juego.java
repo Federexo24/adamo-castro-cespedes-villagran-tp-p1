@@ -106,7 +106,14 @@ public class Juego extends InterfaceJuego
 		if (juegoPausado) {
 		    entorno.dibujarImagen(fondo, 397, 300, 0);
 		    entorno.cambiarFont("Serif", 40, Color.RED);
-	        entorno.escribirTexto("¡Gondolf ha sido derrotado!", 200, 300);
+	        entorno.escribirTexto("¡Gondolf ha sido derrotado!", 170, 300);
+	        
+	        if (energia <= 0) {
+	        	entorno.dibujarImagen(fondo, 397, 300, 0);
+	            entorno.cambiarFont("Arial", 30, Color.RED);
+	            entorno.escribirTexto("¡Gondolf se quedó sin magia!", 200, 300);
+	        }
+
 	        return;
 	    }
 		// Incrementamos el contador de tiempo
@@ -198,22 +205,21 @@ public class Juego extends InterfaceJuego
 	    }
 	    
 	    if (entorno.sePresionoBoton(3)) { // Clic derecho
-	        double mouseX = entorno.mouseX();
-	        double mouseY = entorno.mouseY();
-
-	        if (magiaSeleccionada == 1) {
-	            ataqueNormalActivo = true;
-	            System.out.println("¡Ataque normal activado!");
+	    	if (magiaSeleccionada == 1) {
+	    	    ataqueNormalActivo = true;
+	    	    System.out.println("ataque normal activado");
+	    	    // magiaSeleccionada se mantiene
 	        } else if (magiaSeleccionada == 2 && energia >= 20) {
 	            superAtaqueActivo = true;
 	            energia -= 20;
-	            System.out.println("¡Súper ataque activado!");
+	            System.out.println("súper ataque activado");
+	            magiaSeleccionada = 0; // deselecciona
 	        }
 	    }
 	    
 	    if (energia <= 0) {
 	        juegoPausado = true;
-	        System.out.println("¡Gondolf se quedó sin energía! El juego se ha pausado.");
+	        System.out.println("¡Gondolf se quedó sin energía! ");
 	    }
 
 
@@ -222,24 +228,27 @@ public class Juego extends InterfaceJuego
 
 
 	    gondolf.dibujar(entorno);
-	    
+
+	
 	    if (ataqueNormalActivo) {
 	        for (int i = 0; i < murcielagos.size(); i++) {
 	            Murcielagos m = murcielagos.get(i);
-	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 100)) {
+	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 150)) {
 	                murcielagos.remove(i);
-	                System.out.println("Murciélago eliminado con ataque normal");
+	                System.out.println("murciélago eliminado con ataque normal");
 	                break; // solo uno
 	            }
 	        }
 	        ataqueNormalActivo = false; // reset
 	    }
 
-	    // SUPER ATAQUE - elimina varios en área
+	    // SUPER ATAQUE, elimina varios en área
 	    if (superAtaqueActivo) {
+	    	
+	    	entorno.dibujarCirculo(gondolf.getX(), gondolf.getY(), 150 * 2, Color.YELLOW);
 	        for (int i = murcielagos.size() - 1; i >= 0; i--) {
 	            Murcielagos m = murcielagos.get(i);
-	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 150)) {
+	            if (m != null && colision(gondolf.getX(), gondolf.getY(), m.getX(), m.getY(), 200)) {
 	                murcielagos.remove(i);
 	                System.out.println("Murciélago eliminado por explosión");
 	            }
