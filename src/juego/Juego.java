@@ -77,6 +77,7 @@
 	    private Image[] marcoavatar;
 		private Gondolf gondolf;
 		private Roca[] rocas;
+		private ArrayList<Golem> golems;
 		private Image hud;
 		private Murcielagos batman;
 		private boolean juegoPausado = false;
@@ -116,11 +117,17 @@
 		Juego()
 		{
 			
+			
 			// Inicializa el objeto entorno
 			this.entorno = new Entorno(this, "TP_GRUPO_13", 1360, 720);
 			this.gondolf = new Gondolf(400, 300);
-			this.golem = new Golem(700, 300);
-			this.demon = new Demon(700, 300);
+			this.golems = new ArrayList<Golem>();
+			this.golems.add(new Golem(700, 300));
+			this.golems.add(new Golem(200, 190));
+			this.golems.add(new Golem(900, 500));
+			this.golems.add(new Golem(300, 500));
+			this.golems.add(new Golem(200, 600));
+			this.demon = new Demon(700, 200);
 			
 			
 			//rocas en el mapa
@@ -237,6 +244,7 @@
 		        murcielagos.add(generarMurcielagoEnBorde());
 		        tiempoGeneracionMurcielagos = 0;
 		    }
+		    
 	
 		    // Dibujar imagen de fondo
 			entorno.dibujarImagen(fondo, 680, 360, 0);  
@@ -354,8 +362,11 @@
 		        
 		    batman.dibujar(entorno);
 		    //golem
-		    golem.seguirGondolf(gondolf.getX(), gondolf.getY()); // o golem.mover(); si querés que solo camine
-		    golem.dibujar(entorno);
+		    for (int i = 0; i < golems.size(); i++) {
+		        Golem g = golems.get(i);
+		        g.actualizar(gondolf.getX(), gondolf.getY(), gondolf);  // Si tu Golem tiene este método
+		        g.dibujar(entorno);
+		    }
 		    
 		    
 		    // Barra de vida y mana
@@ -490,12 +501,20 @@
 		                boolean dentro = false;
 		                switch (animacionActual) {
 		                    case "agua":
-		                        dentro = colision(ataqueX, ataqueY, m.getX(), m.getY(), 100);
+		                        dentro = colision(ataqueX, ataqueY, m.getX(), m.getY(), 80);
+		                        entorno.dibujarCirculo(xHechizo, yHechizo, 160, Color.blue);
 		                        break;
 		                    case "tierra":
+		                        dentro = colision(ataqueX, ataqueY, m.getX(), m.getY(), 100);
+		                        entorno.dibujarCirculo(xHechizo, yHechizo, 50, Color.red);
+		                        break;
 		                    case "rayo":
+		                        dentro = colision(ataqueX, ataqueY, m.getX(), m.getY(), 40);
+		                        entorno.dibujarCirculo(xHechizo, yHechizo, 20, Color.yellow);
+		                        break;
 		                    case "pasto":
 		                        dentro = colision(ataqueX, ataqueY, m.getX(), m.getY(), 150);
+		                        entorno.dibujarCirculo(xHechizo, yHechizo, 75, Color.green);
 		                        break;
 		                }
 
