@@ -1,4 +1,4 @@
-	package juego;
+		package juego;
 	import java.util.ArrayList;  // Importa ArrayList
 	import java.awt.Image;
 	
@@ -53,7 +53,14 @@
 		// Lista para almacenar murciélagos
 	    private ArrayList<Murcielagos> murcielagos;
 	    private int tiempoGeneracionMurcielagos = 0;  // Temporizador para crear murciélagos
-	    
+	    //Pociones de salud
+	    private ArrayList<Pocion> pociones;
+	    private int contadorPociones = 0;
+	    //Pociones de Mana
+	    private ArrayList<PocionMana> pocionesMana;
+	    private int contadorPocionesMana = 0;
+
+	  
 	    
 	  //  ArrayList<Pocion> pociones = new ArrayList<>();
 		// El objeto Entorno que controla el tiempo y otros
@@ -103,15 +110,14 @@
 		boolean animandoRayo = false;
 		boolean animandoPasto = false;
 		
-		
 		//rondas 
-		private int rondaActual = 1;
-		private boolean nuevaRonda = false;
-		private int tiempoEsperaRonda = 0;
-		private int totalEnemigosGenerados = 0;
-		private int totalEnemigosPorRonda = 7;
-
-		 // FUNCION DE COLISION
+				private int rondaActual = 1;
+				private boolean nuevaRonda = false;
+				private int tiempoEsperaRonda = 0;
+				private int totalEnemigosGenerados = 0;
+				private int totalEnemigosPorRonda = 3;
+		 
+		// FUNCION DE COLISION
 		private boolean colision(double x1, double y1, double x2, double y2, double rango) {
 		    double dx = x1 - x2;
 		    double dy = y1 - y2;
@@ -136,6 +142,8 @@
 			this.golems.add(new Golem(300, 500));
 			this.golems.add(new Golem(200, 600));
 			this.demon = new Demon(700, 200);
+			this.pociones = new ArrayList<Pocion>();
+			this.pocionesMana = new ArrayList<PocionMana>();
 			
 			
 			//rocas en el mapa
@@ -244,19 +252,18 @@
 
 	        return;
 	    }
-			// Incrementamos el contador de tiempo
-		    tiempoGeneracionMurcielagos++;
-		    
-		    // Si el contador alcanza un valor determinado (ejemplo, cada 300 frames)
-		    if (!nuevaRonda && tiempoGeneracionMurcielagos >= 20 && murcielagos.size() < 10) {
-		    	if (totalEnemigosGenerados < totalEnemigosPorRonda) {
-		        	murcielagos.add(generarMurcielagoEnBorde());
-		        	totalEnemigosGenerados++;
-		        	tiempoGeneracionMurcielagos = 0;
-		    }
-		    }
+		// Incrementamos el contador de tiempo
+	    tiempoGeneracionMurcielagos++;
+	    
+	    // Si el contador alcanza un valor determinado (ejemplo, cada 300 frames)
+	    if (!nuevaRonda && tiempoGeneracionMurcielagos >= 20 && murcielagos.size() < 10) {
+	    	if (totalEnemigosGenerados < totalEnemigosPorRonda) {
+	        	murcielagos.add(generarMurcielagoEnBorde());
+	        	totalEnemigosGenerados++;
+	        	tiempoGeneracionMurcielagos = 0;
+	    }
+	    }
 
-		    
 	
 		    // Dibujar imagen de fondo
 			entorno.dibujarImagen(fondo, 680, 360, 0);  
@@ -265,6 +272,18 @@
 			entorno.dibujarImagen(iconTierra, 1230, 180, 0);
 			entorno.dibujarImagen(iconPasto, 1110, 90, 0);
 			entorno.dibujarImagen(iconAgua, 1110, 180, 0);
+			// Agua
+			entorno.cambiarFont("Comic Sans MS", 14, Color.CYAN);
+			entorno.escribirTexto("Bola de Agua (0)", 1060, 230);  // nombre y coste del hechizo
+			// Tierra
+			entorno.cambiarFont("Comic Sans MS", 14, Color.YELLOW);
+			entorno.escribirTexto("Puño de tierra (10)", 1190, 230);
+			// Rayo
+			entorno.cambiarFont("Comic Sans MS", 14, Color.BLUE);
+			entorno.escribirTexto("Rayo Mortal (5)", 1193, 140);
+			// Pasto
+			entorno.cambiarFont("Comic Sans MS", 14, Color.GREEN);
+			entorno.escribirTexto("Bomba de Pasto (20)", 1050, 140);
 			entorno.dibujarImagen(iconMago, 1080, 580, 0);
 			entorno.dibujarImagen(marcoavatar[frameActual], 1080, 580, 0);
 			if (magiaSeleccionada == 1 ) {
@@ -301,6 +320,47 @@
 			if (contadorFrames % 20 == 0) {
 			    frameActual = (frameActual + 1) % 4;
 			}
+			
+			contadorPocionesMana++;
+
+			if (contadorPocionesMana > 800) { // cada ~13 segundos si va a 60 FPS
+			    double x = 55 + Math.random() * (980 - 55);
+			    double y = 20 + Math.random() * (680 - 20);
+			    pocionesMana.add(new PocionMana(x, y));
+			    contadorPocionesMana = 0;
+			}
+
+			for (int i = pocionesMana.size() - 1; i >= 0; i--) {
+			    PocionMana pm = pocionesMana.get(i);
+			    pm.dibujar(entorno);
+			    if (pm.colisionaCon(gondolf)) {
+			        gondolf.setMana(Math.min(100, gondolf.getMana() + 20)); // recupera 20 de maná
+			        pocionesMana.remove(i);
+			        System.out.println("🔷 ¡Gondolf recuperó maná con una poción!");
+			    }
+			}
+
+			
+			// --- POCIONES ---
+			contadorPociones++;
+			if (contadorPociones > 600) { // Cada 10 segundos (a 60 FPS)
+			    double x = 55 + Math.random() * (980 - 55);
+			    double y = 20 + Math.random() * (680 - 20);
+			    pociones.add(new Pocion(x, y));
+			    contadorPociones = 0;
+			}
+
+			// Dibujar y detectar colisión
+			for (int i = pociones.size() - 1; i >= 0; i--) {
+			    Pocion p = pociones.get(i);
+			    p.dibujar(entorno);
+			    if (p.colisionaCon(gondolf)) {
+			        gondolf.setVida(Math.min(100, gondolf.getVida() + 20)); // Cura 20 de vida, máximo 100
+			        pociones.remove(i);
+			        System.out.println("💖 ¡Gondolf recuperó vida!");
+			    }
+			}
+
 		    
 		    // Mover, dibujar al mago y colicionar con rocas
 		    boolean bloqueaArriba = false;
@@ -329,8 +389,7 @@
 		    }
 		    gondolf.dibujar(entorno);
 		    
-		    
-		    //rondas
+		  //rondas
 	        
 		     // detecta si la ronda terminó,si no quedan enemigos y no estamos esperando, 
 		     //iniciar cuenta para la siguiente ronda
@@ -343,7 +402,7 @@
 		            tiempoEsperaRonda--;
 
 		            // muestra mensaje de la proxima ronda
-		            entorno.cambiarFont("Arial", 36, Color.WHITE);
+		            entorno.cambiarFont("Comic Sans MS", 36, Color.ORANGE);
 		            entorno.escribirTexto("Ronda " + (rondaActual + 1) + "!", 450, 100);
 		            //aumenta la el numero de rondas actual
 		            if (tiempoEsperaRonda == 0){
@@ -353,7 +412,6 @@
 		                nuevaRonda = false;
 		            }
 		        }
-
 		    
 		    //ROCAS 
 		    for (Roca r : rocas) {
@@ -397,7 +455,6 @@
 		                demon.matar(); // Se muere tras el golpe
 		            }
 		        }
-		        
 		        
 		    batman.dibujar(entorno);
 		    //golem
@@ -447,6 +504,29 @@
 		    for (int i = 0; i < cuadritosLlenosMana; i++) {
 		        int x = barraManaX + i * (cuadritoAncho + 2);
 		        entorno.dibujarRectangulo(x + cuadritoAncho / 2, barraManaY, cuadritoAncho, cuadritoAlto, 0, Color.CYAN.darker());
+		        
+		     // Texto descriptivo arriba de las barras de vida y mana
+		        entorno.cambiarFont("Comic Sans MS", 14, Color.pink);
+		        entorno.escribirTexto("Gondolf, el mago protector del bosque,", 1050, 340);
+		        entorno.escribirTexto("debe derrotar a los esbirros del mago", 1050, 360);
+		        entorno.escribirTexto("oscuro Solanum para evitar que su magia", 1050, 380);
+		        entorno.escribirTexto("maligna,acabe con la vida de sus amigos... ", 1050, 400);
+		        
+
+		     // Texto centrado arriba de las barras de Vida y Maná
+		        entorno.cambiarFont("Comic Sans MS", 14, Color.GREEN);
+		        // Texto vida
+		        String textoVida = "Vida: " + gondolf.getVida() + "/100";
+		        int anchoTextoVida = textoVida.length() * 8; // aprox 8px por caracter
+		        int textoVidaX = barraVidaX + ((cantidadCuadritosVida * (cuadritoAncho + 2)) - anchoTextoVida) / 2;
+		        entorno.escribirTexto(textoVida, textoVidaX, barraVidaY - 15);
+
+		        // Texto maná
+		        entorno.cambiarFont("Comic Sans MS", 14, Color.CYAN);
+		        String textoMana = "Maná: " + gondolf.getMana() + "/100";
+		        int anchoTextoMana = textoMana.length() * 8;
+		        int textoManaX = barraManaX + ((cantidadCuadritosMana * (cuadritoAncho + 2)) - anchoTextoMana) / 2;
+		        entorno.escribirTexto(textoMana, textoManaX, barraManaY - 15);
 		    }
 		    if (entorno.sePresionoBoton(1)) { 
 		        double mouseX = entorno.mouseX();
