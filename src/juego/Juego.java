@@ -102,6 +102,14 @@
 		boolean animandoTierra = false;
 		boolean animandoRayo = false;
 		boolean animandoPasto = false;
+		
+		
+		//rondas 
+		private int rondaActual = 1;
+		private boolean nuevaRonda = false;
+		private int tiempoEsperaRonda = 0;
+		private int totalEnemigosGenerados = 0;
+		private int totalEnemigosPorRonda = 7;
 
 		 // FUNCION DE COLISION
 		private boolean colision(double x1, double y1, double x2, double y2, double rango) {
@@ -240,10 +248,14 @@
 		    tiempoGeneracionMurcielagos++;
 		    
 		    // Si el contador alcanza un valor determinado (ejemplo, cada 300 frames)
-		    if (tiempoGeneracionMurcielagos >= 100 && murcielagos.size() < 10) {
-		        murcielagos.add(generarMurcielagoEnBorde());
-		        tiempoGeneracionMurcielagos = 0;
+		    if (!nuevaRonda && tiempoGeneracionMurcielagos >= 20 && murcielagos.size() < 10) {
+		    	if (totalEnemigosGenerados < totalEnemigosPorRonda) {
+		        	murcielagos.add(generarMurcielagoEnBorde());
+		        	totalEnemigosGenerados++;
+		        	tiempoGeneracionMurcielagos = 0;
 		    }
+		    }
+
 		    
 	
 		    // Dibujar imagen de fondo
@@ -317,6 +329,32 @@
 		    }
 		    gondolf.dibujar(entorno);
 		    
+		    
+		    //rondas
+	        
+		     // detecta si la ronda terminó,si no quedan enemigos y no estamos esperando, 
+		     //iniciar cuenta para la siguiente ronda
+		        
+		        if (murcielagos.isEmpty() && totalEnemigosGenerados >= totalEnemigosPorRonda && !nuevaRonda) {
+		        	nuevaRonda = true;
+		            tiempoEsperaRonda = 120; // 2 segundos si el juego corre a 60 FPS
+		        }
+		        if (nuevaRonda && rondaActual < 5) {
+		            tiempoEsperaRonda--;
+
+		            // muestra mensaje de la proxima ronda
+		            entorno.cambiarFont("Arial", 36, Color.WHITE);
+		            entorno.escribirTexto("Ronda " + (rondaActual + 1) + "!", 450, 100);
+		            //aumenta la el numero de rondas actual
+		            if (tiempoEsperaRonda == 0){
+		                rondaActual++;// aumenta la cantidad de enemigos, es decir la dificultad
+		                totalEnemigosPorRonda += 10;
+		               
+		                nuevaRonda = false;
+		            }
+		        }
+
+		    
 		    //ROCAS 
 		    for (Roca r : rocas) {
 		        r.dibujar(entorno);
@@ -359,6 +397,7 @@
 		                demon.matar(); // Se muere tras el golpe
 		            }
 		        }
+		        
 		        
 		    batman.dibujar(entorno);
 		    //golem
